@@ -4,11 +4,22 @@ Content     :   OSX HID device implementation.
 Created     :   February 26, 2013
 Authors     :   Lee Cooper
  
-Copyright   :   Copyright 2013 Oculus VR, Inc. All Rights reserved.
- 
-Use of this software is subject to the terms of the Oculus license
-agreement provided at the time of installation or download, or which
+Copyright   :   Copyright 2014 Oculus VR, Inc. All Rights reserved.
+
+Licensed under the Oculus VR Rift SDK License Version 3.1 (the "License"); 
+you may not use the Oculus VR Rift SDK except in compliance with the License, 
+which is provided at the time of installation or download, or which 
 otherwise accompanies this software in either electronic or hard copy form.
+
+You may obtain a copy of the License at
+
+http://www.oculusvr.com/licenses/LICENSE-3.1 
+
+Unless required by applicable law or agreed to in writing, the Oculus VR SDK 
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 *************************************************************************************/
 
@@ -18,7 +29,6 @@ otherwise accompanies this software in either electronic or hard copy form.
 
 namespace OVR { namespace OSX {
 
-static const UInt32 MAX_QUEUED_INPUT_REPORTS = 5;
     
 //-------------------------------------------------------------------------------------
 // **** OSX::DeviceManager
@@ -360,7 +370,7 @@ bool HIDDeviceManager::Enumerate(HIDEnumerateVisitor* enumVisitor)
             initSerialNumber(hidDev, &devDesc);
 
             // Look for the device to check if it is already opened.
-            Ptr<DeviceCreateDesc> existingDevice = DevManager->FindHIDDevice(devDesc);
+            Ptr<DeviceCreateDesc> existingDevice = DevManager->FindHIDDevice(devDesc, true);
             // if device exists and it is opened then most likely the CreateHIDFile
             // will fail; therefore, we just set Enumerated to 'true' and continue.
             if (existingDevice && existingDevice->pDevice)
@@ -426,6 +436,8 @@ void HIDDeviceManager::staticDeviceMatchingCallback(void *inContext,
                                                     void *inSender,
                                                     IOHIDDeviceRef inIOHIDDeviceRef)
 {
+    OVR_UNUSED(inResult);
+    OVR_UNUSED(inSender);
     HIDDeviceManager* hidMgr = static_cast<HIDDeviceManager*>(inContext);
     HIDDeviceDesc hidDevDesc;
     hidMgr->getPath(inIOHIDDeviceRef, &hidDevDesc.Path);
@@ -438,7 +450,7 @@ void HIDDeviceManager::staticDeviceMatchingCallback(void *inContext,
 // **** OSX::HIDDevice
 
 HIDDevice::HIDDevice(HIDDeviceManager* manager)
- :  HIDManager(manager), InMinimalMode(false)
+ :  InMinimalMode(false), HIDManager(manager)
 {
     Device = NULL;
     RepluggedNotificationPort = 0;
@@ -447,7 +459,7 @@ HIDDevice::HIDDevice(HIDDeviceManager* manager)
 // This is a minimal constructor used during enumeration for us to pass
 // a HIDDevice to the visit function (so that it can query feature reports).
 HIDDevice::HIDDevice(HIDDeviceManager* manager, IOHIDDeviceRef device)
-:   HIDManager(manager), Device(device), InMinimalMode(true)
+:   InMinimalMode(true), HIDManager(manager), Device(device)
 {
     RepluggedNotificationPort = 0;
 }
@@ -543,7 +555,7 @@ void HIDDevice::deviceAddedCallback(io_iterator_t iterator)
         {
             LogText("OVR::OSX::HIDDevice - Reopened device : %s", DevDesc.Path.ToCStr());
 
-            Ptr<DeviceCreateDesc> existingHIDDev = HIDManager->DevManager->FindHIDDevice(DevDesc);
+            Ptr<DeviceCreateDesc> existingHIDDev = HIDManager->DevManager->FindHIDDevice(DevDesc, true);
             if (existingHIDDev && existingHIDDev->pDevice)
             {
                 HIDManager->DevManager->CallOnDeviceAdded(existingHIDDev);
@@ -751,6 +763,11 @@ void HIDDevice::staticHIDReportCallback(void* pContext,
                                         uint8_t* pReport,
                                         CFIndex reportLength)
 {
+    OVR_UNUSED(result);
+    OVR_UNUSED(pSender);
+    OVR_UNUSED(reportType);
+    OVR_UNUSED(reportId);
+
     HIDDevice* pDevice = (HIDDevice*) pContext;
     return pDevice->hidReportCallback(pReport, (UInt32)reportLength);
 }
@@ -767,6 +784,8 @@ void HIDDevice::hidReportCallback(UByte* pData, UInt32 length)
     
 void HIDDevice::staticDeviceRemovedCallback(void* pContext, IOReturn result, void* pSender)
 {
+    OVR_UNUSED(result);
+    OVR_UNUSED(pSender);
     HIDDevice* pDevice = (HIDDevice*) pContext;
     pDevice->deviceRemovedCallback();
 }
@@ -775,7 +794,7 @@ void HIDDevice::deviceRemovedCallback()
 {
     Ptr<HIDDevice> _this(this); // prevent from release
     
-    Ptr<DeviceCreateDesc> existingHIDDev = HIDManager->DevManager->FindHIDDevice(DevDesc);
+    Ptr<DeviceCreateDesc> existingHIDDev = HIDManager->DevManager->FindHIDDevice(DevDesc, true);
     if (existingHIDDev && existingHIDDev->pDevice)
     {
         HIDManager->DevManager->CallOnDeviceRemoved(existingHIDDev);
@@ -829,15 +848,15 @@ bool HIDDevice::GetFeatureReport(UByte* data, UInt32 length)
     return (result == kIOReturnSuccess);
 }
    
-UInt64 HIDDevice::OnTicks(UInt64 ticksMks)
+double HIDDevice::OnTicks(double tickSeconds)
 {
     
     if (Handler)
     {
-        return Handler->OnTicks(ticksMks);
+        return Handler->OnTicks(tickSeconds);
     }
     
-    return DeviceManagerThread::Notifier::OnTicks(ticksMks);
+    return DeviceManagerThread::Notifier::OnTicks(tickSeconds);
 }
 
 HIDDeviceManager* HIDDeviceManager::CreateInternal(OSX::DeviceManager* devManager)
@@ -874,9 +893,8 @@ HIDDeviceManager* HIDDeviceManager::CreateInternal(OSX::DeviceManager* devManage
 // ***** Creation
 
 // Creates a new HIDDeviceManager and initializes OVR.
-HIDDeviceManager* HIDDeviceManager::Create()
+HIDDeviceManager* HIDDeviceManager::Create(Ptr<OVR::DeviceManager>& deviceManager)
 {
-    OVR_ASSERT_LOG(false, ("Standalone mode not implemented yet."));
     
     if (!System::IsInitialized())
     {
@@ -886,21 +904,21 @@ HIDDeviceManager* HIDDeviceManager::Create()
         return 0;
     }
 
-    Ptr<OSX::HIDDeviceManager> manager = *new OSX::HIDDeviceManager(NULL);
-    
-    if (manager)
+    Ptr<OSX::DeviceManager> deviceManagerOSX = *new OSX::DeviceManager;
+
+	if (!deviceManagerOSX)
     {
-        if (manager->Initialize())
-        {
-            manager->AddRef();
-        }
-        else
-        {
-            manager.Clear();
-        }
+		return NULL;
+	}
+
+	if (!deviceManagerOSX->Initialize(NULL))
+    {         
+		return NULL;
     }
 
-    return manager.GetPtr();
+	deviceManager = deviceManagerOSX;
+
+	return deviceManagerOSX->GetHIDDeviceManager();
 }
 
 } // namespace OVR
