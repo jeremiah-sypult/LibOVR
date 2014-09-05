@@ -242,6 +242,8 @@ static bool SetSocketOptions(SocketHandle sock)
         failed = true;
     }
 
+    // NOTE: This should be OVR_OS_BSD, not Mac.
+#ifdef OVR_OS_MAC
     int value = 1;
     sockError = setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, &value, sizeof(value));
     if (sockError != 0)
@@ -250,6 +252,7 @@ static bool SetSocketOptions(SocketHandle sock)
         OVR::LogError("[Socket] Failed SO_NOSIGPIPE setsockopt, errno: %d", errsv);
         failed = true;
     }
+#endif
 
     // Reuse address is only needed for posix platforms, as it is the default
     // on Windows platforms.
@@ -359,7 +362,14 @@ void UDPSocket::OnRecv(SocketEvent_UDP* eventHandler, UByte* pData, int bytesRea
 
 int UDPSocket::Send(const void* pData, int bytes, SockAddr* address)
 {
-	return (int)sendto(TheSocket, (const char*)pData, bytes, 0, (const sockaddr*)&address->Addr6, sizeof(address->Addr6));
+    // NOTE: This should be OVR_OS_BSD
+#ifdef OVR_OS_MAC
+    int flags = 0;
+#else
+    int flags = MSG_NOSIGNAL;
+#endif
+
+	return (int)sendto(TheSocket, (const char*)pData, bytes, flags, (const sockaddr*)&address->Addr6, sizeof(address->Addr6));
 }
 
 void UDPSocket::Poll(SocketEvent_UDP *eventHandler)

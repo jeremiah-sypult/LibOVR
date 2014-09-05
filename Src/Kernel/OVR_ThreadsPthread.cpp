@@ -127,9 +127,9 @@ void MutexImpl::Unlock(Mutex* pmutex)
     OVR_UNUSED(pmutex);
     OVR_ASSERT(pthread_self() == LockedBy && LockCount > 0);
 
-    unsigned lockCount;
+    //unsigned lockCount;
     LockCount--;
-    lockCount = LockCount;
+    //lockCount = LockCount;
 
     pthread_mutex_unlock(&SMutex);
 }

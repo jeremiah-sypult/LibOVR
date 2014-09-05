@@ -275,6 +275,20 @@ bool Display::Initialize()
     return true;
 }
 
+
+bool Display::GetDriverMode(bool& driverInstalled, bool& compatMode, bool& hideDK1Mode)
+{
+    driverInstalled = false;
+    compatMode = true;
+    hideDK1Mode = false;
+    return true;
+}
+
+bool Display::SetDriverMode(bool compatMode, bool hideDK1Mode)
+{
+    return false;
+}
+
 DisplaySearchHandle* Display::GetDisplaySearchHandle()
 {
 	return new OSX::OSXDisplaySearchHandle();
@@ -282,7 +296,7 @@ DisplaySearchHandle* Display::GetDisplaySearchHandle()
 
 bool Display::InCompatibilityMode( bool displaySearch )
 {
-    OVR_UNUSED( displaySearch );
+	OVR_UNUSED( displaySearch );
     return true;
 }
 
@@ -351,6 +365,4 @@ Ptr<Display> Display::GetDisplay( int index, DisplaySearchHandle* handle )
 
     return result;
 }
-
-
 } // namespace OVR
