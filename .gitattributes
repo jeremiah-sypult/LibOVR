@@ -1,0 +1,15 @@
+*			text=auto
+
+*.c			text		eol=lf
+*.cpp		text		eol=lf
+*.h			text		eol=lf
+*.hpp		text		eol=lf
+
+*.sln		text		eol=crlf	merge=union
+*.vcxproj*	text		eol=crlf	merge=union
+
+*.bat		text		eol=crlf
+*.cmd		text		eol=crlf
+*.exe		binary
+
+*.txt		text		eol=crlf
