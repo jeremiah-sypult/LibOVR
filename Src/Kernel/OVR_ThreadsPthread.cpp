@@ -619,6 +619,48 @@ Thread::ThreadState Thread::GetThreadState() const
         return Running;    
     return NotRunning;
 }
+
+// Join thread
+bool Thread::Join(int maxWaitMs) const
+{
+    // If polling,
+    if (maxWaitMs == 0)
+    {
+        // Just return if finished
+        return IsFinished();
+    }
+    // If waiting forever,
+    else if (maxWaitMs > 0)
+    {
+        UInt32 t0 = Timer::GetTicksMs();
+
+        while (!IsFinished())
+        {
+            UInt32 t1 = Timer::GetTicksMs();
+
+            // If the wait has expired,
+            int delta = (int)(t1 - t0);
+            if (delta >= maxWaitMs)
+            {
+                return false;
+            }
+
+            Thread::MSleep(10);
+        }
+
+        return true;
+    }
+    else
+    {
+        while (!IsFinished())
+        {
+            pthread_join(ThreadHandle, NULL);
+        }
+    }
+
+    return true;
+}
+
 /*
 static const char* mapsched_policy(int policy)
 {
@@ -781,6 +823,19 @@ int     Thread::GetCPUCount()
 {
     return 1;
 }
+
+
+#if defined (OVR_OS_MAC)
+void    Thread::SetThreadName( const char* name )
+{
+    pthread_setname_np( name );
+}
+#else
+void    Thread::SetThreadName( const char* name )
+{
+    pthread_setname_np( pthread_self(), name );
+}
+#endif
 
 }
 
