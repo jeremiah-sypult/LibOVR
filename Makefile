@@ -46,10 +46,10 @@ DELETEFILE    = rm -f
 
 DEBUG         = 0
 ifeq ($(DEBUG), 1)
-	CXXFLAGS      = -pipe -DDEBUG -g
+	CXXFLAGS      = -pipe -fPIC -DDEBUG -g
 	RELEASETYPE   = Debug
 else
-	CXXFLAGS      = -pipe -O2
+	CXXFLAGS      = -pipe -fPIC -O2
 	RELEASETYPE   = Release
 endif
 
@@ -91,7 +91,6 @@ OBJECTS       = $(OBJPATH)/OVR_DeviceHandle.o \
 		$(OBJPATH)/OVR_Timer.o \
 		$(OBJPATH)/OVR_UTF8Util.o \
 		$(OBJPATH)/Util_LatencyTest.o \
-		$(OBJPATH)/Util_MagCalibration.o \
 		$(OBJPATH)/Util_Render_Stereo.o \
 		$(OBJPATH)/OVR_ThreadsPthread.o \
 		$(OBJPATH)/OVR_Linux_HIDDevice.o \
@@ -184,9 +183,6 @@ $(OBJPATH)/OVR_UTF8Util.o: $(LIBOVRPATH)/Src/Kernel/OVR_UTF8Util.cpp
 
 $(OBJPATH)/Util_LatencyTest.o: $(LIBOVRPATH)/Src/Util/Util_LatencyTest.cpp 
 	$(CXXBUILD)Util_LatencyTest.o $(LIBOVRPATH)/Src/Util/Util_LatencyTest.cpp
-
-$(OBJPATH)/Util_MagCalibration.o: $(LIBOVRPATH)/Src/Util/Util_MagCalibration.cpp 
-	$(CXXBUILD)Util_MagCalibration.o $(LIBOVRPATH)/Src/Util/Util_MagCalibration.cpp
 
 $(OBJPATH)/Util_Render_Stereo.o: $(LIBOVRPATH)/Src/Util/Util_Render_Stereo.cpp 
 	$(CXXBUILD)Util_Render_Stereo.o $(LIBOVRPATH)/Src/Util/Util_Render_Stereo.cpp

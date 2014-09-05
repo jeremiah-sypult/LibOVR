@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -63,7 +63,6 @@
     <ClInclude Include="..\..\Src\OVR_Win32_HIDDevice.h" />
     <ClInclude Include="..\..\Src\OVR_Win32_HMDDevice.h" />
     <ClInclude Include="..\..\Src\OVR_Win32_SensorDevice.h" />
-    <ClInclude Include="..\..\Src\Util\Util_MagCalibration.h" />
     <ClInclude Include="..\..\Src\Util\Util_Render_Stereo.h" />
   </ItemGroup>
   <ItemGroup>
@@ -99,7 +98,6 @@
     <ClCompile Include="..\..\Src\OVR_Win32_HMDDevice.cpp" />
     <ClCompile Include="..\..\Src\Util\Util_LatencyTest.cpp" />
     <ClCompile Include="..\..\Src\OVR_Win32_SensorDevice.cpp" />
-    <ClCompile Include="..\..\Src\Util\Util_MagCalibration.cpp" />
     <ClCompile Include="..\..\Src\Util\Util_Render_Stereo.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -238,6 +236,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -262,6 +261,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

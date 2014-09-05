@@ -173,6 +173,11 @@ bool HIDDeviceManager::initVendorProductVersion(udev_device* device, HIDDeviceDe
     else
         return false;
 
+    if (getIntProperty(device, "bcdDevice", &result))
+        pDevDesc->VersionNumber = result;
+    else
+        return false;
+
     return true;
 }
 
@@ -258,7 +263,7 @@ bool HIDDeviceManager::Enumerate(HIDEnumerateVisitor* enumVisitor)
             udev_device_unref(hid);
             entry = udev_list_entry_get_next(entry);
         }
-	}
+    }
 
 	// Free the enumerator and udev objects
     udev_enumerate_unref(devices);

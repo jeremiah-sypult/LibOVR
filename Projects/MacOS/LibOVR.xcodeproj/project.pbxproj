@@ -11,8 +11,6 @@
 		274FAAAA178F811800B17C7A /* OVRVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 274FAAA8178F811800B17C7A /* OVRVersion.h */; };
 		274FAAB3178F813B00B17C7A /* Util_LatencyTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274FAAAD178F813B00B17C7A /* Util_LatencyTest.cpp */; };
 		274FAAB4178F813B00B17C7A /* Util_LatencyTest.h in Headers */ = {isa = PBXBuildFile; fileRef = 274FAAAE178F813B00B17C7A /* Util_LatencyTest.h */; };
-		274FAAB5178F813B00B17C7A /* Util_MagCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274FAAAF178F813B00B17C7A /* Util_MagCalibration.cpp */; };
-		274FAAB6178F813B00B17C7A /* Util_MagCalibration.h in Headers */ = {isa = PBXBuildFile; fileRef = 274FAAB0178F813B00B17C7A /* Util_MagCalibration.h */; };
 		274FAAB7178F813B00B17C7A /* Util_Render_Stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274FAAB1178F813B00B17C7A /* Util_Render_Stereo.cpp */; };
 		274FAAB8178F813B00B17C7A /* Util_Render_Stereo.h in Headers */ = {isa = PBXBuildFile; fileRef = 274FAAB2178F813B00B17C7A /* Util_Render_Stereo.h */; };
 		274FAAE1178F814500B17C7A /* OVR_Alg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274FAAB9178F814500B17C7A /* OVR_Alg.cpp */; };
@@ -101,8 +99,6 @@
 		274FAAA8178F811800B17C7A /* OVRVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OVRVersion.h; sourceTree = "<group>"; };
 		274FAAAD178F813B00B17C7A /* Util_LatencyTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Util_LatencyTest.cpp; sourceTree = "<group>"; };
 		274FAAAE178F813B00B17C7A /* Util_LatencyTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util_LatencyTest.h; sourceTree = "<group>"; };
-		274FAAAF178F813B00B17C7A /* Util_MagCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Util_MagCalibration.cpp; sourceTree = "<group>"; };
-		274FAAB0178F813B00B17C7A /* Util_MagCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util_MagCalibration.h; sourceTree = "<group>"; };
 		274FAAB1178F813B00B17C7A /* Util_Render_Stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Util_Render_Stereo.cpp; sourceTree = "<group>"; };
 		274FAAB2178F813B00B17C7A /* Util_Render_Stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util_Render_Stereo.h; sourceTree = "<group>"; };
 		274FAAB9178F814500B17C7A /* OVR_Alg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OVR_Alg.cpp; sourceTree = "<group>"; };
@@ -303,8 +299,6 @@
 			children = (
 				274FAAAD178F813B00B17C7A /* Util_LatencyTest.cpp */,
 				274FAAAE178F813B00B17C7A /* Util_LatencyTest.h */,
-				274FAAAF178F813B00B17C7A /* Util_MagCalibration.cpp */,
-				274FAAB0178F813B00B17C7A /* Util_MagCalibration.h */,
 				274FAAB1178F813B00B17C7A /* Util_Render_Stereo.cpp */,
 				274FAAB2178F813B00B17C7A /* Util_Render_Stereo.h */,
 			);
@@ -368,7 +362,6 @@
 				274FAAA9178F811800B17C7A /* OVR.h in Headers */,
 				274FAAAA178F811800B17C7A /* OVRVersion.h in Headers */,
 				274FAAB4178F813B00B17C7A /* Util_LatencyTest.h in Headers */,
-				274FAAB6178F813B00B17C7A /* Util_MagCalibration.h in Headers */,
 				274FAAB8178F813B00B17C7A /* Util_Render_Stereo.h in Headers */,
 				274FAAE2178F814500B17C7A /* OVR_Alg.h in Headers */,
 				274FAAE4178F814500B17C7A /* OVR_Allocator.h in Headers */,
@@ -473,7 +466,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				274FAAB3178F813B00B17C7A /* Util_LatencyTest.cpp in Sources */,
-				274FAAB5178F813B00B17C7A /* Util_MagCalibration.cpp in Sources */,
 				274FAAB7178F813B00B17C7A /* Util_Render_Stereo.cpp in Sources */,
 				274FAAE1178F814500B17C7A /* OVR_Alg.cpp in Sources */,
 				274FAAE3178F814500B17C7A /* OVR_Allocator.cpp in Sources */,
