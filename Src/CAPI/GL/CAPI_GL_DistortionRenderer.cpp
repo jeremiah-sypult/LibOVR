@@ -386,13 +386,21 @@ void DistortionRenderer::GraphicsState::Save()
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &TextureBinding);
     if (GLVersionInfo.SupportsVAO)
     {
+#ifdef OVR_OS_MAC
+        if (isAtLeastOpenGL3())
+        {
+            glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VertexArrayBinding);
+        }
+        else
+        {
+            glGetIntegerv(GL_VERTEX_ARRAY_BINDING_APPLE, &VertexArrayBinding);
+        }
+#else
         glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VertexArrayBinding);
+#endif
     }
-    else
-    {
-        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ElementArrayBufferBinding);
-        glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &ArrayBufferBinding);
-    }
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ElementArrayBufferBinding);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &ArrayBufferBinding);
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &FrameBufferBinding);
     if (GLVersionInfo.SupportsDrawBuffers)
     {
@@ -452,11 +460,8 @@ void DistortionRenderer::GraphicsState::Restore()
 		glBindVertexArray(VertexArrayBinding);
 #endif
     }
-    else
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementArrayBufferBinding);
-        glBindBuffer(GL_ARRAY_BUFFER, ArrayBufferBinding);
-    }
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementArrayBufferBinding);
+    glBindBuffer(GL_ARRAY_BUFFER, ArrayBufferBinding);
     glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferBinding);
     
 	ApplyBool(GL_BLEND, Blend, 0);
@@ -991,7 +996,18 @@ void DistortionRenderer::destroy()
 	{
         if (glState->GLVersionInfo.SupportsVAO)
         {
+#ifdef OVR_OS_MAC
+            if (glState->isAtLeastOpenGL3())
+            {
+                glDeleteVertexArrays(1, &DistortionMeshVAOs[eyeNum]);
+            }
+            else
+            {
+                glDeleteVertexArraysAPPLE(1, &DistortionMeshVAOs[eyeNum]);
+            }
+#else
             glDeleteVertexArrays(1, &DistortionMeshVAOs[eyeNum]);
+#endif
         }
 
 		DistortionMeshVAOs[eyeNum] = 0;
@@ -1011,7 +1027,18 @@ void DistortionRenderer::destroy()
 
     if(LatencyVAO != 0)
     {
+#ifdef OVR_OS_MAC
+        if (glState->isAtLeastOpenGL3())
+        {
+            glDeleteVertexArrays(1, &LatencyVAO);
+        }
+        else
+        {
+            glDeleteVertexArraysAPPLE(1, &LatencyVAO);
+        }
+#else
         glDeleteVertexArrays(1, &LatencyVAO);
+#endif
 	    LatencyVAO = 0;
     }
 
