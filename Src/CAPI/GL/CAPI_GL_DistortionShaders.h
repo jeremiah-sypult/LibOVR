@@ -276,12 +276,15 @@ namespace OVR { namespace CAPI { namespace GL {
     
     static const char DistortionChroma_fs[] =
     "uniform sampler2D Texture0;\n"
-    
+
+    "uniform vec2 OverdriveInvRTSize;\n"
+    "uniform vec2 OverdriveScales;\n"
+
     "_FS_IN vec4 oColor;\n"
     "_FS_IN vec2 oTexCoord0;\n"
     "_FS_IN vec2 oTexCoord1;\n"
     "_FS_IN vec2 oTexCoord2;\n"
-    
+
     "_FRAGCOLOR_DECLARATION\n"
     
     "void main()\n"
@@ -289,11 +292,36 @@ namespace OVR { namespace CAPI { namespace GL {
     "   float ResultR = _TEXTURELOD(Texture0, oTexCoord0, 0.0).r;\n"
     "   float ResultG = _TEXTURELOD(Texture0, oTexCoord1, 0.0).g;\n"
     "   float ResultB = _TEXTURELOD(Texture0, oTexCoord2, 0.0).b;\n"
-    
-    "   _FRAGCOLOR = vec4(ResultR * oColor.r, ResultG * oColor.g, ResultB * oColor.b, 1.0);\n"
-    "}\n";
+    "   vec3 newColor = vec3(ResultR * oColor.r, ResultG * oColor.g, ResultB * oColor.b);\n"
+        // pixel luminance overdrive
+    "   if(OverdriveInvRTSize.x > 0.0)\n"
+    "   {\n"
+#if 1 // HACK: simple bump in overdrive, clamping black upward to avoid smudging artifacts
+    "      vec3 overdriveColor = clamp(newColor + (newColor * OverdriveScales.x), (8.0/255.0), 1.0);\n"
+#else // TODO: is this comparable to DistortionChroma_ps.psh (CAPI_D3D1XDistortionRenderer)?
+    "      vec3 oldColor = _TEXTURELOD(Texture0, oTexCoord0 * OverdriveInvRTSize.xy, 0.0).rgb;\n"
+    "      vec3 adjustedScales;\n"
 
+    "      adjustedScales.x = newColor.x > oldColor.x ? OverdriveScales.x : OverdriveScales.y;\n"
+    "      adjustedScales.y = newColor.y > oldColor.y ? OverdriveScales.x : OverdriveScales.y;\n"
+    "      adjustedScales.z = newColor.z > oldColor.z ? OverdriveScales.x : OverdriveScales.y;\n"
+
+    "      vec3 overdriveColor = clamp(newColor + (newColor - oldColor) * adjustedScales, 0.0, 1.0);\n"
+#endif
+    "      _FRAGCOLOR = vec4(overdriveColor.rgb, 1.0);\n"
+    "   }\n"
+    "   else\n"
+    "   {\n"
+    "      _FRAGCOLOR = vec4(ResultR * oColor.r, ResultG * oColor.g, ResultB * oColor.b, 1.0);\n"
+    "   }\n"
+    "}\n";
     
+    const OVR::CAPI::GL::ShaderBase::Uniform DistortionChroma_fs_refl[] =
+    {
+        { "OverdriveInvRTSize",  OVR::CAPI::GL::ShaderBase::VARTYPE_FLOAT, 0, 8 },
+        { "OverdriveScales",     OVR::CAPI::GL::ShaderBase::VARTYPE_FLOAT, 8, 8 },
+    };
+
     static const char DistortionTimewarpChroma_vs[] =
     "uniform vec2 EyeToSourceUVScale;\n"
     "uniform vec2 EyeToSourceUVOffset;\n"

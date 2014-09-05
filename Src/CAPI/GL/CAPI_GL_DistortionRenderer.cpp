@@ -180,12 +180,18 @@ bool DistortionRenderer::Initialize(const ovrRenderAPIConfig* apiConfig,
     pEyeTextures[1] = *new Texture(&RParams, 0, 0);
 
     initBuffersAndShaders();
+	initOverdrive();
 
 	RestoreGraphicsState();
 
     return true;
 }
-
+void DistortionRenderer::initOverdrive()
+{
+	if(RState.DistortionCaps & ovrDistortionCap_Overdrive)
+	{
+	}
+}
 
 void DistortionRenderer::SubmitEye(int eyeId, const ovrTexture* eyeTexture)
 {
@@ -537,6 +543,7 @@ void DistortionRenderer::initBuffersAndShaders()
 
 void DistortionRenderer::renderDistortion(Texture* leftEyeTexture, Texture* rightEyeTexture)
 {
+	bool overdriveActive = DistortionCaps & ovrDistortionCap_Overdrive; // IsOverdriveActive();
     GraphicsState* glState = (GraphicsState*)GfxState.GetPtr();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -580,6 +587,22 @@ void DistortionRenderer::renderDistortion(Texture* leftEyeTexture, Texture* righ
     {        
 		ShaderFill distortionShaderFill(DistortionShader);
         distortionShaderFill.SetTexture(0, eyeNum == 0 ? leftEyeTexture : rightEyeTexture);
+		if(overdriveActive)
+		{
+			float invRtWidth  = 1.0f / (float)RParams.RTSize.w;
+			float invRtHeight = 1.0f / (float)RParams.RTSize.h;
+			DistortionShader->SetUniform2f("OverdriveInvRTSize", invRtWidth, invRtHeight);
+
+			static float overdriveScaleRegularRise = 0.1f;
+			static float overdriveScaleRegularFall = 0.05f;	// falling issues are hardly visible
+			DistortionShader->SetUniform2f("OverdriveScales", overdriveScaleRegularRise, overdriveScaleRegularFall);
+		}
+		else
+		{
+			// -1.0f disables PLO
+			DistortionShader->SetUniform2f("OverdriveInvRTSize", -1.0f, -1.0f);
+			DistortionShader->SetUniform2f("OverdriveScales", -1.0f, -1.0f);
+		}
 
 		DistortionShader->SetUniform2f("EyeToSourceUVScale",  eachEye[eyeNum].UVScaleOffset[0].x, eachEye[eyeNum].UVScaleOffset[0].y);
 		DistortionShader->SetUniform2f("EyeToSourceUVOffset", eachEye[eyeNum].UVScaleOffset[1].x, eachEye[eyeNum].UVScaleOffset[1].y);
@@ -963,7 +986,7 @@ void DistortionRenderer::destroy()
 	SaveGraphicsState();
 
     GraphicsState* glState = (GraphicsState*)GfxState.GetPtr();
-    
+
 	for(int eyeNum = 0; eyeNum < 2; eyeNum++)
 	{
         if (glState->GLVersionInfo.SupportsVAO)

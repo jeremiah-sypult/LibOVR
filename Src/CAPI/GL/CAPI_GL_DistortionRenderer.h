@@ -133,6 +133,7 @@ protected:
     void initBuffersAndShaders();
     void initShaders();
     void initFullscreenQuad();
+    void initOverdrive();
     void destroy();
 	
     void setViewport(const Recti& vp);
